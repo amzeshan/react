@@ -10,7 +10,7 @@
 // This module only exists as an ESM wrapper around the external CommonJS
 // Scheduler dependency. Notice that we're intentionally not using named imports
 // because Rollup would use dynamic dispatch for CommonJS interop named imports.
-// When we switch to ESM, we can delete this module.
+// When we switch to ESM, we can delete this module. 
 import * as Scheduler from 'scheduler';
 
 export const scheduleCallback = Scheduler.unstable_scheduleCallback;

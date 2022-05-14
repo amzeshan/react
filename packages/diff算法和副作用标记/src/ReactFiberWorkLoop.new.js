@@ -532,7 +532,7 @@ export function scheduleUpdateOnFiber(
       console.error('useInsertionEffect must not schedule updates.');
     }
   }
-
+// markUpdateLaneFromFiberToRoot 标记fiber更新优先级
   const root = markUpdateLaneFromFiberToRoot(fiber, lane);
   if (root === null) {
     return null;
@@ -1278,6 +1278,7 @@ function markRootSuspended(root, suspendedLanes) {
 
 // This is the entry point for synchronous tasks that don't go
 // through Scheduler
+// 异步更新
 function performSyncWorkOnRoot(root) {
   if (enableProfilerTimer && enableProfilerNestedUpdatePhase) {
     syncNestedUpdateFlag();
@@ -1755,6 +1756,7 @@ function renderRootSync(root: FiberRoot, lanes: Lanes) {
       workLoopSync();
       break;
     } catch (thrownValue) {
+      // 进入commit阶段
       handleError(root, thrownValue);
     }
   } while (true);
@@ -1885,6 +1887,7 @@ function workLoopConcurrent() {
   }
 }
 
+// performUnitOfWork 更新fiber单元
 function performUnitOfWork(unitOfWork: Fiber): void {
   // The current, flushed, state of this fiber is the alternate. Ideally
   // nothing should rely on this, but relying on it here means that we don't
@@ -2987,6 +2990,7 @@ function warnAboutUpdateOnNotYetMountedFiberInDEV(fiber) {
 let beginWork;
 if (__DEV__ && replayFailedUnitOfWorkWithInvokeGuardedCallback) {
   const dummyFiber = null;
+  // beginWork  向下调和函数 unitOfWork 向上归并流程 lanes优先级
   beginWork = (current, unitOfWork, lanes) => {
     // If a component throws an error, we replay it again in a synchronously
     // dispatched event, so that the debugger will treat it as an uncaught

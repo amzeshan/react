@@ -16,7 +16,7 @@ export type CapturedValue<T> = {|
   source: Fiber | null,
   stack: string | null,
 |};
-
+// 生成捕获值
 export function createCapturedValue<T>(
   value: T,
   source: Fiber,

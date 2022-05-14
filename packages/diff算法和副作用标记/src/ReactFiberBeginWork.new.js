@@ -1067,6 +1067,7 @@ function updateClassComponent(
         workInProgress.flags |= ShouldCapture;
         // eslint-disable-next-line react-internal/prod-error-codes
         const error = new Error('Simulated error coming from DevTools');
+        // lane 更新优先级
         const lane = pickArbitraryLane(renderLanes);
         workInProgress.lanes = mergeLanes(workInProgress.lanes, lane);
         // Schedule the error boundary to re-render using updated state
@@ -2726,6 +2727,7 @@ function updateDehydratedSuspenseComponent(
   // We use lanes to indicate that a child might depend on context, so if
   // any context has changed, we need to treat is as if the input might have changed.
   const hasContextChanged = includesSomeLane(renderLanes, current.childLanes);
+  // didReceiveUpdate  判断当前更新是否是来源于父级的更新
   if (didReceiveUpdate || hasContextChanged) {
     // This boundary has changed since the first render. This means that we are now unable to
     // hydrate it. We might still be able to hydrate it using a higher priority lane.
@@ -2745,6 +2747,7 @@ function updateDehydratedSuspenseComponent(
         suspenseState.retryLane = attemptHydrationAtLane;
         // TODO: Ideally this would inherit the event time of the current render
         const eventTime = NoTimestamp;
+        // scheduleUpdateOnFiber 通过attemptHydrationAtLane优先级更新fiber，fiber确定更新，会调用 ensureRootIsScheduled
         scheduleUpdateOnFiber(current, attemptHydrationAtLane, eventTime);
       } else {
         // We have already tried to ping at a higher priority than we're rendering with
@@ -3480,7 +3483,7 @@ function remountFiber(
     );
   }
 }
-
+// 新老props相等下的处理函数
 function checkScheduledUpdateOrContext(
   current: Fiber,
   renderLanes: Lanes,
@@ -3501,7 +3504,7 @@ function checkScheduledUpdateOrContext(
   }
   return false;
 }
-
+// 当前fiber不需要更新的调用函数
 function attemptEarlyBailoutIfNoScheduledUpdate(
   current: Fiber,
   workInProgress: Fiber,
@@ -3597,6 +3600,7 @@ function attemptEarlyBailoutIfNoScheduledUpdate(
           );
           // The primary children do not have pending work with sufficient
           // priority. Bailout.
+          // 判断是否调和子节点
           const child = bailoutOnAlreadyFinishedWork(
             current,
             workInProgress,
@@ -3623,7 +3627,7 @@ function attemptEarlyBailoutIfNoScheduledUpdate(
     }
     case SuspenseListComponent: {
       const didSuspendBefore = (current.flags & DidCapture) !== NoFlags;
-
+      // childLanes 子组件的更新优先级
       let hasChildWork = includesSomeLane(
         renderLanes,
         workInProgress.childLanes,
@@ -3709,6 +3713,8 @@ function attemptEarlyBailoutIfNoScheduledUpdate(
   }
   return bailoutOnAlreadyFinishedWork(current, workInProgress, renderLanes);
 }
+
+// beginWork 更新调度站
 
 function beginWork(
   current: Fiber | null,
